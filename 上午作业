@@ -1,0 +1,78 @@
+#练习1
+import numpy as np
+
+# 1. 创建(3,4) 0~9随机整数数组
+arr = np.random.randint(0, 10, size=(3, 4))
+print("原始数组 (3,4):\n", arr)
+
+# 2. reshape(4,3) 后转置
+reshaped_arr = arr.reshape(4, 3).T
+print("\n重塑并转置后 (3,4):\n", reshaped_arr)
+
+# 3. 布尔索引提取大于5的元素
+filtered_arr = arr[arr > 5]
+print("\n大于5的一维数组：", filtered_arr)
+
+
+#练习2
+arr = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
+print("原数组：\n", arr)
+
+# 1. 第2行(索引1)，1~3列（左闭右开 0:3）
+row2_part = arr[1, 0:3]
+print("\n第2行1~3列：", row2_part)  # [5 6 7]
+
+# 2. 所有行，第3列（索引2）
+col3 = arr[:, 2]
+print("全部行第3列：", col3)  # [ 3  7 11]
+
+# 3. 步长切片取奇数行（第1、3行，索引0、2，步长2）
+odd_rows = arr[::2, :]
+print("\n奇数行(第1、3行)：\n", odd_rows)
+
+#练习3
+# 任务1：逐元素乘法 * 和矩阵乘法 @
+A = np.random.randint(1, 6, size=(2, 3))
+B = np.random.randint(1, 6, size=(2, 3))
+print("A:\n", A)
+print("B:\n", B)
+
+elem_mul = A * B          # 逐元素相乘
+mat_mul = A @ B.T         # 矩阵乘法，B转置为(3,2)才能相乘
+print("\n逐元素乘法 A*B：\n", elem_mul)
+print("矩阵乘法 A @ B.T：\n", mat_mul)
+
+# 任务2：按行、按列求和
+mat = np.array([[1, 2], [3, 4]])
+sum_col = np.sum(mat, axis=0)  # axis=0 列求和
+sum_row = np.sum(mat, axis=1)  # axis=1 行求和
+print("\n原矩阵：\n", mat)
+print("列求和(axis=0)：", sum_col)
+print("行求和(axis=1)：", sum_row)
+
+# 任务3：均值、标准差、四舍五入
+float_arr = np.array([1.2, 3.5, 2.8])
+mean_val = np.mean(float_arr)
+std_val = np.std(float_arr)
+round_arr = np.round(float_arr)
+print("\n数组：", float_arr)
+print("均值：", mean_val)
+print("标准差：", std_val)
+print("四舍五入：", round_arr)
+
+#练习4
+# 1. 生成长度10、0~1随机浮点数
+rand_float = np.random.rand(10)
+print("原始0~1随机数组：\n", rand_float)
+
+# 归一化到 [0,100]
+arr_min = rand_float.min()
+arr_max = rand_float.max()
+norm_arr = (rand_float - arr_min) / (arr_max - arr_min) * 100
+print("\n归一化到0~100：\n", norm_arr)
+
+# 2. 累计和、累计最大值
+cumsum_arr = np.cumsum(norm_arr)
+cummax_arr = np.maximum.accumulate(norm_arr)
+print("\n累计和 cumsum：\n", cumsum_arr)
+print("累计最大值 cummax：\n", cummax_arr)
