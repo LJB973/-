@@ -1,0 +1,131 @@
+import math
+
+def get_number(prompt):
+    """函数1：获取并校验数字输入，异常处理"""
+    while True:
+        try:
+            num = float(input(prompt))
+            return num
+        except ValueError:
+            print(" 输入错误！请输入合法数字。")
+
+def calculate_add(a, b):
+    """函数2：加法计算"""
+    return a + b
+
+def calculate_sub(a, b):
+    """函数3：减法计算"""
+    return a - b
+
+def calculate_mul(a, b):
+    """函数4：乘法计算"""
+    return a * b
+
+def calculate_div(a, b):
+    """函数5：除法，捕获除零异常"""
+    if b == 0:
+        raise ZeroDivisionError("除数不能为0")
+    return a / b
+
+def calculate_power(a, b):
+    """函数6：幂运算 a^b"""
+    return a ** b
+
+def calculate_sqrt(a):
+    """函数7：平方根，负数抛异常"""
+    if a < 0:
+        raise ValueError("负数无法开平方")
+    return math.sqrt(a)
+
+def save_history(content):
+    """文件函数：追加写入计算历史到txt"""
+    with open("calc_history.txt", "a", encoding="utf-8") as f:
+        f.write(content + "\n")
+
+def read_history():
+    """文件函数：读取并打印全部历史记录"""
+    try:
+        with open("calc_history.txt", "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            if not lines:
+                print("暂无计算历史记录！")
+                return
+            print("\n===== 历史计算记录 =====")
+            for line in lines:
+                print(line.strip())
+    except FileNotFoundError:
+        print("暂无历史文件，还没有进行过计算！")
+
+def show_menu():
+    """打印操作菜单"""
+    print("""
+======== 数学计算器 ========
+1. 加法
+2. 减法
+3. 乘法
+4. 除法
+5. 幂运算(a^b)
+6. 平方根√x
+7. 查看全部计算历史
+0. 退出程序
+============================""")
+
+# ---------------------- 主程序循环 ----------------------
+def main():
+    while True:
+        show_menu()
+        opt = input("请输入功能序号：")
+        if opt == "0":
+            print("程序结束，已保存所有计算记录！")
+            break
+        elif opt == "7":
+            read_history()
+            continue
+
+        # 二元运算：加减乘除幂
+        if opt in ["1", "2", "3", "4", "5"]:
+            n1 = get_number("请输入第一个数字：")
+            n2 = get_number("请输入第二个数字：")
+            res = None
+            expr = ""
+            try:
+                if opt == "1":
+                    res = calculate_add(n1, n2)
+                    expr = f"{n1} + {n2} = {res}"
+                elif opt == "2":
+                    res = calculate_sub(n1, n2)
+                    expr = f"{n1} - {n2} = {res}"
+                elif opt == "3":
+                    res = calculate_mul(n1, n2)
+                    expr = f"{n1} × {n2} = {res}"
+                elif opt == "4":
+                    res = calculate_div(n1, n2)
+                    expr = f"{n1} ÷ {n2} = {res}"
+                elif opt == "5":
+                    res = calculate_power(n1, n2)
+                    expr = f"{n1} ^ {n2} = {res}"
+                print(f" 计算结果：{expr}")
+                save_history(expr)
+            except ZeroDivisionError as e:
+                err_msg = f"计算失败：{e}"
+                print("❌", err_msg)
+                save_history(err_msg)
+
+        # 一元运算：平方根
+        elif opt == "6":
+            num = get_number("请输入要开平方的数字：")
+            try:
+                res = calculate_sqrt(num)
+                expr = f"√{num} = {res}"
+                print(f"✅ 计算结果：{expr}")
+                save_history(expr)
+            except ValueError as e:
+                err_msg = f"计算失败：{e}"
+                print("❌", err_msg)
+                save_history(err_msg)
+
+        else:
+            print("❌ 无效序号，请重新选择！")
+
+if __name__ == "__main__":
+    main()
