@@ -1,0 +1,93 @@
+student_list = []
+def add_student():
+    """录入新学生信息"""
+    print("\n===== 录入学生成绩 =====")
+    name = input("请输入学生姓名：")
+    sid = input("请输入学生学号：")
+    score_input = input("请输入各科成绩，用空格分隔(如：85 90 78)：")
+    # 分割字符串转为数字列表
+    score_str = score_input.split()
+    score_list = []
+    for s in score_str:
+        score_list.append(int(s))
+
+    # 组装学生字典
+    student = {
+        "name": name,
+        "id": sid,
+        "scores": score_list
+    }
+    student_list.append(student)
+    print(f"学生 {name} 录入成功！")
+
+
+def search_student():
+    """按姓名/学号查询学生"""
+    if len(student_list) == 0:
+        print("暂无学生数据，请先录入！")
+        return
+    print("\n===== 查询学生 =====")
+    keyword = input("输入姓名或学号查询：")
+    find_flag = False
+    # 遍历列表匹配学生
+    for stu in student_list:
+        if keyword == stu["name"] or keyword == stu["id"]:
+            find_flag = True
+            print(f"姓名：{stu['name']}")
+            print(f"学号：{stu['id']}")
+            print(f"各科成绩：{stu['scores']}")
+            avg = sum(stu["scores"]) / len(stu["scores"])
+            print(f"个人平均分：{avg:.2f}")
+    if not find_flag:
+        print("未找到该学生！")
+
+
+def score_statistics():
+    """全班成绩统计：平均分、最高分、最低分"""
+    if len(student_list) == 0:
+        print("暂无学生数据，请先录入！")
+        return
+    print("\n===== 全班成绩统计 =====")
+    all_scores = []
+    # 收集所有分数
+    for stu in student_list:
+        all_scores.extend(stu["scores"])
+
+    total = sum(all_scores)
+    count = len(all_scores)
+    avg_all = total / count
+    max_score = max(all_scores)
+    min_score = min(all_scores)
+
+    print(f"全部科目总分：{total}")
+    print(f"全部科目平均分：{avg_all:.2f}")
+    print(f"全班单科最高分：{max_score}")
+    print(f"全班单科最低分：{min_score}")
+
+
+def show_menu():
+    """打印菜单"""
+    print("\n======== 学生成绩管理系统 ========")
+    print("1. 录入学生成绩")
+    print("2. 查询学生信息")
+    print("3. 全班成绩统计")
+    print("0. 退出系统")
+    print("==================================")
+
+
+# 主程序循环
+while True:
+    show_menu()
+    choice = input("请输入功能序号：")
+    # 条件判断分发功能
+    if choice == "1":
+        add_student()
+    elif choice == "2":
+        search_student()
+    elif choice == "3":
+        score_statistics()
+    elif choice == "0":
+        print("程序已退出，再见！")
+        break
+    else:
+        print("输入错误，请选择0-3之间的数字！")
