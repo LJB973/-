@@ -1,0 +1,129 @@
+import numpy as np
+import time
+
+# 固定随机种子保证结果可复现
+rng = np.random.default_rng(seed=42)
+
+# ====================== 练习1：矩阵运算与性能优化 ======================
+print("==================== 练习1 开始 ====================")
+# ---------------------- 任务1：三种矩阵乘法性能对比 ----------------------
+print("\n----- 任务1：矩阵乘法性能对比 A(1000,2000) B(2000,3000) -----")
+A = rng.random((1000, 2000))
+B = rng.random((2000, 3000))
+
+def get_avg_time(run_func, repeat=2):
+    total = 0.0
+    for _ in range(repeat):
+        s = time.perf_counter()
+        run_func()
+        e = time.perf_counter()
+        total += e - s
+    return round(total / repeat, 3)
+
+f_dot = lambda: np.dot(A, B)
+f_at = lambda: A @ B
+f_matmul = lambda: np.matmul(A, B)
+
+t_dot = get_avg_time(f_dot)
+t_at = get_avg_time(f_at)
+t_matmul = get_avg_time(f_matmul)
+
+print(f"np.dot 平均耗时: {t_dot} s")
+print(f"A @ B 平均耗时: {t_at} s")
+print(f"np.matmul 平均耗时: {t_matmul} s")
+
+# ---------------------- 任务2：C-order / F-order 内存布局速度对比（修复order报错） ----------------------
+print("\n----- 任务2：行优先C / 列优先F数组求和速度对比 -----")
+# 先生成随机数据，再转换存储顺序
+temp_mat = rng.random((1000, 1000))
+c_arr = np.asarray(temp_mat, order="C")
+f_arr = np.asarray(temp_mat, order="F")
+
+print(f"C数组连续标志 C_CONTIGUOUS: {c_arr.flags['C_CONTIGUOUS']}")
+print(f"F数组连续标志 F_CONTIGUOUS: {f_arr.flags['F_CONTIGUOUS']}")
+
+t_c_row = get_avg_time(lambda: c_arr.sum(axis=1), repeat=3)
+t_f_row = get_avg_time(lambda: f_arr.sum(axis=1), repeat=3)
+t_c_col = get_avg_time(lambda: c_arr.sum(axis=0), repeat=3)
+t_f_col = get_avg_time(lambda: f_arr.sum(axis=0), repeat=3)
+
+print(f"C数组按行求和耗时: {t_c_row} s")
+print(f"F数组按行求和耗时: {t_f_row} s")
+print(f"C数组按列求和耗时: {t_c_col} s")
+print(f"F数组按列求和耗时: {t_f_col} s")
+
+# ---------------------- 任务3：out参数优化消除临时内存 ----------------------
+print("\n----- 任务3：A²+2A+1 常规写法 vs out内存优化写法 -----")
+A_small = rng.random((2000, 2000))
+
+def normal_calc(arr):
+    return arr ** 2 + 2 * arr + 1
+
+def out_opt_calc(arr):
+    temp = np.empty_like(arr)
+    np.multiply(arr, arr, out=temp)
+    twoA = np.empty_like(arr)
+    np.multiply(arr, 2, out=twoA)
+    np.add(temp, twoA, out=temp)
+    np.add(temp, 1, out=temp)
+    return temp
+
+t_normal = get_avg_time(lambda: normal_calc(A_small), repeat=2)
+t_out = get_avg_time(lambda: out_opt_calc(A_small), repeat=2)
+print(f"普通广播写法耗时: {t_normal} s")
+print(f"out参数内存优化写法耗时: {t_out} s")
+
+# ====================== 练习2：金融数据分析实战 ======================
+print("\n==================== 练习2 开始 ====================")
+# ---------------------- 任务1：对数收益率计算 ----------------------
+print("\n----- 任务1：股价对数收益率 -----")
+prices = np.array([100, 102, 105, 103, 107])
+log_prices = np.log(prices)
+log_returns = np.diff(log_prices)
+print("原始股价序列：", prices)
+print("对数收益率：", np.round(log_returns, 5))
+
+# ---------------------- 任务2：5日、20日移动平均线MA ----------------------
+print("\n----- 任务2：移动平均线 MA5 / MA20 -----")
+price_series = rng.uniform(50, 150, size=100)
+
+def moving_avg_cumsum(x, window):
+    cumsum = np.cumsum(np.insert(x, 0, 0))
+    ma = (cumsum[window:] - cumsum[:-window]) / window
+    return ma
+
+ma5 = moving_avg_cumsum(price_series, 5)
+ma20 = moving_avg_cumsum(price_series, 20)
+print(f"原始价格长度: {len(price_series)}")
+print(f"MA5长度: {len(ma5)}, MA20长度: {len(ma20)}")
+print("MA5前10个数值：", np.round(ma5[:10], 2))
+
+# ---------------------- 任务3：波动率与相关系数矩阵 ----------------------
+print("\n----- 任务3：股票年化波动率 + 相关系数矩阵 -----")
+# shape (股票数量, 交易日) = (1000, 252)
+daily_returns = rng.normal(loc=0.0005, scale=0.018, size=(1000, 252))
+daily_std = np.std(daily_returns, axis=1)
+ann_vol = daily_std * np.sqrt(252)
+print("前5支股票年化波动率(%)：", np.round(ann_vol[:5] * 100, 2))
+
+corr_matrix = np.corrcoef(daily_returns)
+print("相关系数矩阵形状：", corr_matrix.shape)
+print("前3只股票相关性子矩阵：\n", np.round(corr_matrix[:3, :3], 3))
+
+# ====================== 拓展：蒙特卡洛股票模拟 ======================
+print("\n==================== 拓展：几何布朗运动蒙特卡洛模拟 ====================")
+def monte_carlo_stock(S0, mu, sigma, years=1, n_sim=2000):
+    dt = 1 / 252
+    n_days = int(252 * years)
+    Z = rng.standard_normal((n_days, n_sim))
+    drift = (mu - 0.5 * sigma ** 2) * dt
+    shock = sigma * np.sqrt(dt) * Z
+    log_ret = drift + shock
+    cum_log = np.cumsum(log_ret, axis=0)
+    paths = S0 * np.exp(cum_log)
+    paths = np.vstack([np.full(n_sim, S0), paths])
+    return paths
+
+sim_paths = monte_carlo_stock(S0=100, mu=0.08, sigma=0.2, years=1, n_sim=2000)
+print("模拟路径形状(天数+1,模拟次数)：", sim_paths.shape)
+print("全部路径期末价格均值：", round(sim_paths[-1].mean(), 2))
