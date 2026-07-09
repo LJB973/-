@@ -1,0 +1,71 @@
+#任务1
+import numpy as np
+print("=" * 60)
+print("一、创建不同维度的数组（1D、2D、3D）")
+print("=" * 60)
+# ---------- 1. 一维数组 ----------
+print("\n【1.1 一维数组 (1D)】")
+arr_1d_list = np.array([1, 2, 3, 4, 5])          # 从列表创建
+arr_1d_arange = np.arange(0, 10, 2)              # arange 创建等差数组
+arr_1d_linspace = np.linspace(0, 1, 5)           # linspace 等分数组
+print("从列表创建:", arr_1d_list)
+print("arange 创建:", arr_1d_arange)
+print("linspace 创建:", arr_1d_linspace)
+print("维度:", arr_1d_list.ndim, "| 形状:", arr_1d_list.shape)
+# ---------- 2. 二维数组 ----------
+print("\n【1.2 二维数组 (2D)】")
+arr_2d_list = np.array([[1, 2, 3], [4, 5, 6]])   # 嵌套列表创建
+arr_2d_zeros = np.zeros((2, 3))                  # 全零矩阵
+arr_2d_ones = np.ones((3, 2))                    # 全一矩阵
+arr_2d_eye = np.eye(3)                           # 单位矩阵
+print("嵌套列表创建:\n", arr_2d_list)
+print("全零矩阵:\n", arr_2d_zeros)
+print("单位矩阵:\n", arr_2d_eye)
+print("维度:", arr_2d_list.ndim, "| 形状:", arr_2d_list.shape)
+# ---------- 3. 三维数组 ----------
+print("\n【1.3 三维数组 (3D)】")
+# 形状 (2, 3, 4): 2个"块"，每块3行4列
+arr_3d = np.array([
+    [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+    [[13, 14, 15, 16], [17, 18, 19, 20], [21, 22, 23, 24]]
+])
+print("三维数组:\n", arr_3d)
+print("维度:", arr_3d.ndim, "| 形状:", arr_3d.shape, "| 元素总数:", arr_3d.size)
+
+print("\n" + "=" * 60)
+print("二、数组的索引与切片")
+print("=" * 60)
+# 准备示例数组
+arr = np.arange(1, 13).reshape(3, 4)   # 3行4列
+print("\n示例二维数组:\n", arr)
+# ---------- 1. 基础索引 ----------
+print("\n【2.1 基础索引】")
+print("第0行:", arr[0])           # 整行
+print("第2行第3列:", arr[2, 3])    # 单个元素 (等价于 arr[2][3])
+print("第0列:", arr[:, 0])        # 整列
+# ---------- 2. 切片操作 ----------
+print("\n【2.2 切片操作】")
+print("前2行:\n", arr[:2])
+print("第1-2行, 第1-3列:\n", arr[1:3, 1:4])
+print("步长为2取列:\n", arr[:, ::2])
+print("反转行:\n", arr[::-1])
+# ---------- 3. 布尔索引 ----------
+print("\n【2.3 布尔索引】")
+print("大于5的元素:", arr[arr > 5])
+print("偶数元素:", arr[arr % 2 == 0])
+# ---------- 4. 三维数组索引 ----------
+print("\n【2.4 三维数组索引】")
+print("第0个块:\n", arr_3d[0])
+print("第0个块的第1行:", arr_3d[0, 1])
+print("第0个块第1行第2列:", arr_3d[0, 1, 2])
+
+print("\n" + "=" * 60)
+print("三、形状变换操作")
+print("=" * 60)
+arr = np.arange(1, 13)
+print("\n原始一维数组:", arr)
+
+
+
+
+
