@@ -1,0 +1,175 @@
+import numpy as np
+
+# 全局存储学生数据：两个列表一一对应
+student_names = []
+student_scores = []
+
+
+def input_score_data():
+    """功能1：录入学生姓名与成绩"""
+    global student_names, student_scores
+    # 清空原有数据，重新录入
+    student_names.clear()
+    student_scores.clear()
+    try:
+        count = int(input("请输入学生人数："))
+        if count <= 0:
+            print("学生人数必须大于0！")
+            return
+        for i in range(1, count + 1):
+            name = input(f"请输入第{i}个学生姓名：").strip()
+            while True:
+                try:
+                    score = float(input("请输入成绩："))
+                    if 0 <= score <= 100:
+                        break
+                    else:
+                        print("成绩范围必须在0~100之间，请重新输入！")
+                except ValueError:
+                    print("输入非法，请输入数字成绩！")
+            student_names.append(name)
+            student_scores.append(score)
+        print("\n✅ 成绩录入完成！")
+    except ValueError:
+        print("学生人数输入错误，请输入整数！")
+
+
+def show_statistics():
+    """功能2：成绩统计（numpy计算均值、最值、中位数、标准差）"""
+    global student_names, student_scores
+    if not student_scores:
+        print("⚠️ 暂无成绩数据，请先录入成绩！")
+        return
+    # 转为numpy数组计算
+    scores_np = np.array(student_scores)
+    avg = np.mean(scores_np)
+    max_score = np.max(scores_np)
+    min_score = np.min(scores_np)
+    median = np.median(scores_np)
+    std = np.std(scores_np)
+    total = np.sum(scores_np)
+
+    print("\n==================== 成绩统计分析 ====================")
+    print(f"学生总人数：{len(student_names)}")
+    print(f"总分：{total:.2f}")
+    print(f"平均分：{avg:.2f}")
+    print(f"最高分：{max_score:.2f}")
+    print(f"最低分：{min_score:.2f}")
+    print(f"中位数：{median:.2f}")
+    print(f"成绩标准差：{std:.2f}")
+    print("======================================================\n")
+
+
+def show_rank():
+    """功能3：成绩从高到低排名"""
+    global student_names, student_scores
+    if not student_scores:
+        print("⚠️ 暂无成绩数据，请先录入成绩！")
+        return
+    # 组合姓名+分数，按分数降序排序
+    student_list = list(zip(student_names, student_scores))
+    # 降序排序
+    sorted_students = sorted(student_list, key=lambda x: x[1], reverse=True)
+    print("\n==================== 成绩排名（从高到低） ====================")
+    print(f"{'排名':<6}{'姓名':<8}{'成绩':<6}")
+    for idx, (name, score) in enumerate(sorted_students, start=1):
+        print(f"{idx:<6}{name:<8}{score:<6.1f}")
+    print("==============================================================\n")
+
+
+def show_score_distribution():
+    """功能4：成绩分段分布统计（优秀/良好/中等/及格/不及格）"""
+    global student_names, student_scores
+    if not student_scores:
+        print("⚠️ 暂无成绩数据，请先录入成绩！")
+        return
+    scores_np = np.array(student_scores)
+    # 分段统计
+    excellent = len(scores_np[(scores_np >= 90) & (scores_np <= 100)])  # 90-100优秀
+    good = len(scores_np[(scores_np >= 80) & (scores_np < 90)])        # 80-89良好
+    medium = len(scores_np[(scores_np >= 70) & (scores_np < 80)])     # 70-79中等
+    pass_ = len(scores_np[(scores_np >= 60) & (scores_np < 70)])      # 60-69及格
+    fail = len(scores_np[scores_np < 60])                             # <60不及格
+    total = len(scores_np)
+
+    print("\n==================== 成绩分布分析 ====================")
+    print(f"优秀(90-100分)：{excellent}人，占比{excellent/total*100:.1f}%")
+    print(f"良好(80-89分)：{good}人，占比{good/total*100:.1f}%")
+    print(f"中等(70-79分)：{medium}人，占比{medium/total*100:.1f}%")
+    print(f"及格(60-69分)：{pass_}人，占比{pass_/total*100:.1f}%")
+    print(f"不及格(0-59分)：{fail}人，占比{fail/total*100:.1f}%")
+    print("======================================================\n")
+
+
+def query_student_score():
+    """功能5：根据姓名查询学生成绩与等级"""
+    global student_names, student_scores
+    if not student_names:
+        print("⚠️ 暂无成绩数据，请先录入成绩！")
+        return
+    search_name = input("请输入要查询的学生姓名：").strip()
+    # 匹配所有同名学生（支持重名）
+    find_result = [(n, s) for n, s in zip(student_names, student_scores) if n == search_name]
+    if not find_result:
+        print(f"未找到名为【{search_name}】的学生！")
+        return
+    print(f"\n查询到{len(find_result)}条记录：")
+    for name, score in find_result:
+        # 判断等级
+        if score >= 90:
+            level = "优秀"
+        elif score >= 80:
+            level = "良好"
+        elif score >= 70:
+            level = "中等"
+        elif score >= 60:
+            level = "及格"
+        else:
+            level = "不及格"
+        print(f"姓名：{name}，成绩：{score:.1f}，等级：{level}")
+    print()
+
+
+def show_menu():
+    """打印系统主菜单"""
+    print("""
+============================
+     成绩分析系统
+============================
+1. 输入成绩数据
+2. 查看成绩统计
+3. 查看成绩排名
+4. 查看成绩分布
+5. 查询学生成绩
+6. 退出系统
+============================
+""")
+
+
+def main():
+    """程序主循环"""
+    print("欢迎使用成绩分析命令行工具（Score Analyzer CLI）")
+    while True:
+        show_menu()
+        choice = input("请选择：").strip()
+        if choice == "1":
+            input_score_data()
+        elif choice == "2":
+            show_statistics()
+        elif choice == "3":
+            show_rank()
+        elif choice == "4":
+            show_score_distribution()
+        elif choice == "5":
+            query_student_score()
+        elif choice == "6":
+            print("感谢使用，程序已退出！")
+            break
+        else:
+            print("输入错误，请选择1~6的数字！\n")
+        # 按回车继续下一轮菜单
+        input("\n按回车键返回菜单...")
+
+
+if __name__ == "__main__":
+    main()
